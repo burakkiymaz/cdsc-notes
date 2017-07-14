@@ -60,11 +60,11 @@ tür | açıklama
 
 **TCP/IP Katmanları**
 
- |Uygulama katmanı
+ 4|Uygulama katmanı
 ---|---
- |İletim katmanı (TCP)
- |Ağ katanı (IP)
- |Ağ erişim katmanı (MAC)
+3|İletim katmanı (TCP)
+2|Ağ katanı (IP)
+1|Ağ erişim katmanı (MAC)
 
 ---
 
