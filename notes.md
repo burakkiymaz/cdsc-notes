@@ -123,12 +123,12 @@ Linux üzerinde `/usr/include/linux/ip.h` dosyası ip header bilgilerini yazmay�
 - Noktadan Noktaya Yönlendirme
     - Dağıtım ile ilgili bilgiler yönlendirme tablosunda tutulur.
 
-Hedef | Ağ geçidi | Ağ Maskesi | Bayraklar | Arayüz
----|---|---|---|---
-192.140.236.44|0.0.0.0|255.255.255.255|UH|eth0
-192.140.236.0|0.0.0.0|255.255.255.0|U|eth0
-127.0.0.1|0.0.0.0|255.0.0.0|U|lo
-0.0.0.0|192.140.236.1|0.0.0.0|UG|eth0
+     Hedef    |  Ağ geçidi  |   Ağ Maskesi  | Bayraklar | Arayüz
+--------------|-------------|---------------|-----------|-------
+192.140.236.44|  0.0.0.0    |255.255.255.255|   UH      | eth0
+192.140.236.0 |  0.0.0.0    |255.255.255.0  |   U       | eth0
+127.0.0.1     |  0.0.0.0    |   255.0.0.0   |   U       | lo
+0.0.0.0       |192.140.236.1|    0.0.0.0    |   UG      | eth0
 
 Bayraklar
 - U (up) Yönlendirme çalışıyor
@@ -322,3 +322,166 @@ Biligi Toplama --> Zafiyet Keşfi --> İstismar Etme --> Yetki Yükseltme --> İ
     - Mobil Uygulama Güvenliği Testleri
     - IoT Güvenlik Testleri
 - OSSTMM
+
+> 15 Temmuz
+
+## Uygulama Protokolleri
+### DNS
+Kök sunucular --  .
+
+.__ com
+|__ edu
+|__ tr __ av
+...  |___ com
+     |___ edu
+     ...
+
+bir domaini okurken tersten bakmalıyız. Örneğin, burak.kiymaz.com.tr
+
+. (kök sunucu) | tr sunucusu | com (tr sunucusuna bağlı com sunucusu) | kiymaz (domain) | burak (subdomain)
+---------------|-------------|----------------------------------------|-----------------|------------------
+
+32 bit sayılar ezberlenemediği için bunlar 4 oktet olarak düzenlenmiştir. Bunu da ezberlemek zor olduğu için bu 4 okteti alanadına çevirmişler.
+
+bind - name.d
+
+bir DNS server bir veya daha fazla zone u tutabilir. Bir istemci kendisine tanımlı olan nameserver ı `/etc/resolver.conf` dosyasında bulunur
+
+bu dosyanın içerisinde;
+
+```
+nameserver [IPadresi]
+nameserver [IPadresi]
+```
+şeklinde nameserver tanımları var
+
+```
+zone "bk.com"{
+    type master; # master zone olduğunu söyler
+    file "/etc/bind/db.bk.com" # bu zoneun ayar dosyasının yerini belirtir.
+}
+
+```
+
+bu ayar dosyasında köklü bir ayar yapmamız gerekecekse mesela MX kaydı değiştirilecekse TTL değerlerini küçültmemiz gerekli. Bunun sebebi DNS kayıtları varsayılan olarak dünya genelinde 24 saatte yayılır. Biz bu değişikliği yaparak yaptığımız değişikliğin dünya genelinde daha hızlı yayılmasını sağlarız. Değişikliği yaptıktan sonra TTL değerini normale çekebiliriz.
+
+```
+nslookup
+> server 8.8.8.8
+> burakkiymaz.com
+google ın serverlarında burakkiymaz.com u sorgular.
+```
+### telnetle mail gönderme
+
+dig ile smtp ip adrsi bulunur.
+```
+telnet IPADRESI smtp
+MAIL FROM: <mailadresi>
+RCPT TO: <mailadresi>
+DATA
+
+From: Burak Kıymaz <mail adresi>
+To: Birisi <mailadresi>
+Subject: Deneme iletisi
+
+Bu bir deneme
+
+.
+
+```
+Bu şekilde mail atılabilir fakat spam ile mücadele amaçlı gönderici mail adresinin reverse kaydı var mı kontrol edilir. Eğer yoksa selamlamayı bile yapmadan işlem durdurulur.
+SPF Kaydı (Domaine ait TXT kaydı) tutmuyorsa yine reject edilir. Bunu dışında henüz resmi olarak zorunlu olmayan DKIM kaydı bulunmakta. (Mailin header kısmına bakılırsa bu dkim public key i görülebilir.)
+
+e postayı göndermek için <kbd>Enter</kbd><kbd>.</kbd><kbd>Enter</kbd> tuş kombinasyonu kullanılır.
+
+### HTTP
+
+(`telnet IPADRESI http` komutu ile bağlanabiliriz yine)
+
+```
+GET / HTTP/1.0 #kök sunucuyu istedik.
+```
+
+HTTP1.0 ile her domain adresine bir IP adresi verilebiliyordu. Zamanla burada bir ihtiyaç hissedildi ve HTTP1.1 icat edildi. Daha sonra burada `Host:` satırı ile bu bu subdomainlere ulaşılabilir.
+
+```
+telnet IPADRESI 80
+Host: SITEADRESI
+GET / HTTP1.1
+```
+
+CGI (Common Gateway Interface)
+
+### SSH
+SSH bağlantısı bir sunuucuya bağlanmanın dışında başka bir sunucuya yönlendirme amaçlı da kullanılabilir.
+
+`ssh -L 22222:192.168.8.128:22 ubuntu@10.5.41.220` 22222. portu dinle (sondaki) ubuntu makinesi dinlenen porta kim gelirse gelsin 192.168.8.128 IP adresine sahip makinenin 22. portuna gitsin  (-L localde dinle -g ile çalışırsa global olarak Port forwarding yapar) local makineme aktar.
+
+`ssh -p 22222 ubuntu1@10.5.153.180`
+`10.5.153.180` -> -g ile paylaşan biligisayarın IPsi
+`ubuntu1` -> o bilgisayarın ssh tunnel yaptığı bilgisayarın kullanıcı adı
+`22222` -> port forwarding yapılan port numarası
+
+
+#### Remote port forwarding
+
+Bir server ın dışarıdan bir makine için ssh bağlantısı yönlendirme olayı.
+
+
+## İşletim Sistemlerine Giriş
+
+**İşletim Sistemi Nedir?** Kullanıcı ile donanım arasında bulunan arayüz.
+
+Von Neumann modele göre işletim sisteminin 3 temel bileşeni var
+- Porcessing unit
+- I/O işlemleri
+- Device
+
+İşletim sistemi;
+- doğru
+- verimli
+- kullnımı kolay olmalı
+
+İşletim sistemi kaynak yöneticisidir.
+Sistem kaynakları;
+- CPU
+- Memory
+- Device
+
+**Concurrency**
+
+
+**Persistence**
+Bir program yazıldığında kaydettiğimiz bir program dosyasını çalıştırdığımızda artık o program memory ye iner.
+
+bir program içerisinde oluşturulan değişken ifadeler bellekte "Stack" alanında tutulur. Eğer `malloc` ile bir yer açıp o yere bakan bir pointer tanımlarsak `malloc`la aırdığımız kısım bellekte "heap" alanında tutulur, pointer ise "stack" alanında tutulur.
+
+CPU üzerinde 3 tip çalışma sırası uygulanır:
+- Önce gelen önce işler
+    - Hangi işlem daha önce geldiyse daha önce işleme alınır.
+- Kısa olan önce işler
+    - İşlemlerin sürelerine göre işleme alınır ve önce en kısa işlem CPU dan faydalanır.
+- Öncelikli olan önce işler
+    - Önceliğe göre işleme alınır fakat burada bir sorun var sisteme önceliği yüksek fazla miktarda işlem gelebilir ve önceliği düşük olan işlemler CPU laynaklarından faydalanamayabilir
+
+**Concurrency**
+Aynı anda farklı işler yapma işlemine veriilen isim. Diğer adıyla paralelleme
+paralelleme için 2 kural var.
+- Data paralelleme
+- Task paralelleme
+
+Yazdığımız bir kodu OpenMP kullanara paraleleştirebiliriz. (C ve C++ da çalışıyor fakat diğer diller için bir kesinlik yok)
+`#pragma omp parallel` eğer bir for döngüsünü threat lere bölmek için
+`#pragma omp parallel for` deriz.
+
+bu işlemi elimizle yapmak istersek **pthreat** kullanılabilir. Fakat bunu da bir sorunu var. Bir işlem shared değişken üzerinde birden fazla sürekli kontrol edildiği için boş CPU cycle harcar. Eğer zaman önemli değilse bu fonksiyonun yerine **Mutex** kullanılabilir. Mutex ise eğer işleyeceği deişken kilitli ise uyur ve işletim sistemini onu uyandırmasını bekler.
+
+
+Semafor(Semaphore) mantık olarak mutex e daha çok benzer. Ama daha çok birden fazla paylaşımlı değişkenimiz varsa kullanılır. Biri üretiyor, biri tüketiyor mantığına dayanır. Mutex e benzemesinin sebebi işlem yapmayan threat uyur ve işletim sisteminin uyandırmasını bekler
+
+**Barriers**, tüm işlemlerin belirli bir noktaya geldiğini teyit etmek için kullanılır.
+
+**Persistence**
+- IPC
+- Filesystem
+- I/O
