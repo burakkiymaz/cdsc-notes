@@ -330,13 +330,14 @@ Biligi Toplama --> Zafiyet Keşfi --> İstismar Etme --> Yetki Yükseltme --> İ
 ## Uygulama Protokolleri
 ### DNS
 Kök sunucular --  .
-
+```
 .__ com
 |__ edu
 |__ tr __ av
 ...  |___ com
      |___ edu
      ...
+```
 
 bir domaini okurken tersten bakmalıyız. Örneğin, burak.kiymaz.com.tr
 
@@ -784,6 +785,7 @@ Mimariler arasındaki en teml fark denetimin hangi katmada ya da katmanlarda ger
 **ÖNEMLİ: Bir subnetin birden fazla gateway i olabilir. Fakat Bir tane default gatewayi olması gerekmektedir. Route Table üzerinde tanımladğımız ip adreslerinin ağ maskesi dar olanı geniş olanı ezer.**
 
 Firewall kuralı örneği
+
 SrcIP | SrcPORT | DestIP | DstPORT | Service | Action
 ---|---|---|---|---|---
 10.0.0.5|ANY|192.168.1.5|TCP-22|?SSH|ALLOW
