@@ -990,6 +990,7 @@ APT çözümlerinin hedefi yapılan saldırı zincirlerini bir noktada kırabilm
 ## Pasif Bilgi Toplama
 
 **Bu konu çook önemli**
+
 Senaryo: Ankara Üniversitesine saldırı yapılacak bilgi topluyoruz.
 
 1. Ankara university
