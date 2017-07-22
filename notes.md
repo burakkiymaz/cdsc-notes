@@ -1314,11 +1314,8 @@ Korelasyon için logların zamanında gelmesi önemli. Gelen loglar hem olay ba�
 ## Vulnerability and Compliance Management (Zafiyet ve Uyum Yönetimi)
 
 Bugün kullanılan zafiyetlerin büyük çoğunluğu (%95) Önceden bulunan açıklardan faydalanılarak yapılır.  
-```
-c
-```
 
-Boğru makinenin doğru ayarlarla açıklarının kapatılması gerekmektedir
+Doğru makinenin doğru ayarlarla açıklarının kapatılması gerekmektedir
 
 Zafiyet yönetimi yapılırken;
 - Bulguları çıkart,
@@ -1568,10 +1565,10 @@ Bilimesi gereken ve ihtiyaç duyulan verilerin, kurulan belirli yapılarla birli
 
 Sistem güvenliğinin aşamaları
 
-|Whole system security|includes everyting: policy management, Policies etc.
----|---|---
-|Security Protocols|how to archivea certain functionality using the crypto algorithms
-|Crypto Algorithms| Fundamental buildings of block
+Whole system security|includes everyting: policy management, Policies etc.
+---|---
+Security Protocols|how to archivea certain functionality using the crypto algorithms
+Crypto Algorithms| Fundamental buildings of block
 
 İletişim güvenliği:
 - Genel kavramlar
@@ -1597,7 +1594,8 @@ Anahtar uzunlukları `80 bit` ise minimum güvenlik önlemi sağlar.
                     `256 bit` ise long-term güvenlik sağlar.
 
 - Shift Cipher ise şifrelenmişse brute-force ile çözülebilir.
-- Substitution Cipher ile şifrelenmişse frekans analizi ile çözülebilir. Bunun çözümü block şifreleme olabilir
+- Substitution Cipher ile şifrelenmişse frekans analizi ile çözülebilir. Bunun çözümü block şifreleme olabilir.
+
 x|f(x)
 ---|---
 AAAAAAAA|BSDWHDPSD
