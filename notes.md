@@ -3,6 +3,11 @@
 
 ---
 
+# İçindekiler
+- [Defensive](#defensive)
+    - [Ağ Mimarileri](#ag-mimarileri)
+- [Offansive](#offensive)
+
 # Defensive
 ## Ağ mimarileri
 
@@ -763,7 +768,7 @@ Overwrite sırası aşağıdaki gibidir.
 - **UAC(User Account Control)**
 - **Secure boot**: Açılışta UEFI ın hangi işletim sisteminin çağırılacağını söyler. Aynı zamanda yüklenecek driverların bilgisayar açılmadan virüs kontrolünü yapar. Bu sayede Bilgisayar açılmadan çalışan virüsler engellenmiş olur.
 
-## Windows Network Security
+## Windows Network Security #1
 
 ### Güvenlik Duvarı nedir?
 Ağ geçidinde çalışan (Gateway- OSI-2/3 arası) Router ların yerine çalışabilen güvenlik duvarları kullanabiliriz.
@@ -831,6 +836,86 @@ Değerli kaynakların önüne herkesin ulaşabildiği yere konan makinelere veri
 
 ![a secure network](img/secure-network.png)
 ---
+
+
+## Network Security #2
+### TAP / SPAN
+- TAP (Test Access Point): Network ün belirli bir noktasından geçen trafiğin kopyalanarak analizinin yapılasını sağlar.
+    - İki şekilde ağa dahil olabiliriz:
+        - Inline (Akan trafiği bizim cihazımızın üzerinden akıtma olayına denir.)
+        - Out of Band (akan bir trafiğin koyasını çıkarıp analiz cihazımıza verirsek "Out of Band" Kullanmış oluruz.)
+    - IDS ve IPS cihazlar iki şekilde de çalışabilir. Fakat çoğunlukla Out of Band olarak kullanılır. Sadece koruma mekanizması olarak kullanılacağı zaman inline kullanılır.
+- SPAN (Switch Port Analyzer)
+    - Özel bir şekilde ayarlanan (mirror mode) Switchin bir portunun çalıştırılmasıdır.
+        - Source -> Gi/0/10-30
+        - Destination -> dest port Gi/0/5
+
+Switlerde bir port `Access Port` veya `Trunk Port` olarak çalışabilir.
+- **Trunk Port:** sadece bir VLAN'a üye değil, tüm VLANlara üye demek.
+    - Buradan gelen paketler VLAN etiketiyle gelir.
+    - Burada bulunan makine, VLAN Tagini işleyebilmeli
+    - Ayrıca Switleri birbrine bağlamak içiçn kullanılır.
+- **Access Portlar**
+    - Sadece bir VLAN'a üye olabilir.
+    - Access Portta bulunan bir client hangi VLANda olduğunu bilmez
+- **Network packet Broker**
+    - L3 e kadar engelleme yapabilen cihazlara denir.
+    - IP, VLAN, Service, MAC Address, Port parametrelerine göre filtreler
+
+Bir ağı VLAN lara bölmek ağda oluşacak paket çarpışmalarını önlemek amacıyla oluşturulur.
+
+## Network Based Attack
+### IP / MAC Spoofing
+
+MAC ve IP adresini taklit ederek yapılan saldırılara denir. Bir mac adrsine birden fazla IP verilebilir. Fakat bir IP adresine birden fazla MAC verilemez.
+
+Eğer ağa girişte NAC varsa ağa girmeye yetkili bir sistemin MAC adresini taklit ederek sızılabilir.
+
+### ARP Spoofing
+
+**MITM**: Man in the Middle Attack
+
+Hackerın bir ağda araya girerek saldırı yapmasına denir. Saldırgan gelen tüm IP ve MAC adreslerine bende der.
+
+### Switch Port Security
+Bu ayar açıldığı zaman Switchlerin portları 3 tane MAC adresine kadar çalışacak şekilde ayarlanır. (İlk gelen 3 MAC adresi) Bu şekilde ARP Spoofing engellenebilir.
+
+### Rouge DHCP Sunucusu
+
+Switchler üzerinde DHCP Snooping ayarı var. Gerçek DHCP sunucu olan port dışında DHCP Snooping aktif edilirse o port dışından gelen DHCP reply paketlerini bloklar.
+
+### DNS Cache Poisoning
+
+Eğer bir şekilde bir DNS sunucunun cacheine bir sitenin IP si değiştirilerek eklenebilirse TTL süresi boyunca o site için gelecek olan istekler sahte IP adresine yönlendirilir.
+
+### Kurumlarda DNS Sunucular
+- İç DNS Sunucular
+    - company.local ve finans.local isimli adreslerimiz var. Localdeki clientlar buraya erişmek istediği zaman iç DNS Sunucusuna sorar ve oradan yönlendirme alır.
+    - Bu adreslere dışarıdan erişilemez.
+    - İç DNS Sunucuların Recursive DNS özelliği açık olmalıdır.
+- Dış DNS Sunucular
+    - Dışarıdaki kullanıcıları internet üzerinde yönlendirebilmek için kullanılır.
+    - Dış DNS Sunucular Recursive DNS özelliği kapalı olması gerekir.
+
+### NAC (Network Access Control)
+Portlarda "Sticky MAC" aktif edilirse ilk gelen MAC adresi port ile eşleşir. O porta bir daha kimse başka bir MAC adrsine sahip cihaz takamaz.
+
+Bunun bir tık ilerisi `802.1.x` yapılandırılırsa;
+- Domain Credential
+- Certificate
+- Local User / Password
+
+kullanılabilir. Bir switche arka plandaki bir RADIUS (Authentication Server) IP adresi verilir. Bu sunucu gelen kişinin güvenlik bilgilerini kontrol ederek kimlik doğrulama yapar. Daha sonra yetkilendirme yaparak hangi ağa dahil edeceğine karar verir. (Bu kurala AAA denir. (Authentication, Authorization, Access))
+
+802.1.x in özelliği IP adresleri olmadan bu işlemlerin hepsi gerçekleştirilir. Çünkü bizim buradaki yapılandırmaya göre IP adresi aldırmamız gerekli.
+
+Bizim NAC ürünlerinden istediğimiz başka bir şey ise "Compliance Check" (kurum standartlarına uyumluluk). Mesela, bütün sistemlerde antivirüs olacak. Bunu idari bir biçimde denetlemamiz gerekiyor. NAC çözümlerinden beklenen bir özellik de budur. Bu kurallara uymayan clientlar karantine kısmına alınır. Verilen IP adresi ile sistem tarafından erişilebilir hale gelir. Fakat client sistem kaynaklarına erişemez. Gereksinimleri yükleyip tekrar kontrol etmesi gerekir. Eğer geçerse bu sefer sistem kaynaklarına erişebilir.
+
+Switchler birbiri ile SNMP (Simple Network Management Protocol) portu ile anlaşır. Bu port tüm switchlerde varsayılan açık gelir.
+
+v1 ve v2 de konuşmak için community name bilinmesi yeterlidir. Public bağlanılırsa RO (Read-Only) bağlanılır. Private bağlanılırsa RW (Read-Write) çalıştırılabilir. Eğer v3 ile iletişime geçilecekse username / password kullanılması gerekir. En mantıklı çözüm v1 ve v2 yi disable edip v3 ile iletişime geçmektir.
+
+Buraya kadar hep akıllı switchlerden bahsettik. Eğer Switch akılsız Switch ise; clientın gönderdiği istekler izlenir. Gönderilen yerden geliyormuş gibi RST paketi göndererek clientın Networke bağlanması engellenir.
 
 ## Sunucu ve Uç sistem Güvenliği
 
@@ -950,6 +1035,660 @@ APT çözümlerinin hedefi yapılan saldırı zincirlerini bir noktada kırabilm
         - Heap Spray
         - DEP Circumvention UASLR tarzı yaptığı hareketler
         - Utilize OS Functionalrını kontrol eder.
+
+## Saldırı Tespiti ve Engellenmesi (Intrusion Detection System)
+
+Sisteme dışaran sızan saldırganları ve sistem kaynaklarını uygunsuz ya da yetkilerini aşan biçimde kullanan kullanıcıları tespit etmeyi amaçlayan sistemlerdir. Saltırı başarı ile sonuçlanmak zorunda değildir. Başarısız ve yarım bırakılmış saldırı girişimleri de saldırı olarak ele alınır.
+
+- Mümkün olduğunca hızlı fark etmek.
+- Güvenlik yöneticilerini bilgilendirerek saldırıların kısa sürede durdurulmasını veya etkisinin azaltılamsını sağlamak.
+- İstendiği takdirde saldırıyı durdurmaya çalışmak.
+- Saldırılar ile ilgili yasal takibe destek verecek, saldırı tekniğini öğrenmek, saldırının etkisini doğru ölçmek ve daha etkin geri kurtarma için kayıtlar üretmek.
+
+Saldırı sistemleri 4 katmanda çalışır.
+1. Veri toplama ve özetleme
+2. Sınıflandırma
+3. Analiz
+4. Raporlama
+
+STS Sınıflandırmaları
+- Problem çözümüne yaklaşıma göre
+    - Anormallik tespiti (Anormally detection)
+        - Kullanıcının kendisi profilini değiştirdiği zaman alarm verebilir.
+    - Kötüye kullanım tespiti (Misuse detection)
+        - Biz burada kötüyü tarif ederiz fakat saldırgan burada bizim tanımımıza uymayan kötü birşeyi yaparsa alarm alamayız.
+- Veri kaynağına göre
+    - Sunucu Temelli (Host based detection)
+    - Ağ Temelli (Network based detection)
+
+### Anormallik tespiti
+Varsayım: Bütün saldırılar sıradışı özelliklere sahiptir.
+
+Kullanıcıların normal davranışları kaydedilir ve bir profil oluşturulur. Eğer öğretilen bu normalliklerin dışına çıkılırsa ve küçük sapma varsa profil güncellenir eğer büyük bir sapma ise sistem alarm verecektir.
+
+Avantajları:
+- Öngörülmemiş saldırıların tespitine imkan verir.
+- Bakım gerektirmez.
+
+Dezavantajları:
+- Eğitimi çok uzun sürer.
+- Eğitim sürecinde "steril" bir ortama ihtiyaç duyar.
+- Saldırı iyi biçimde kategorize edilemez.
+- Gerçekleştirimi oldukça karmaşık ve zordur.
+
+Doğru ve hatalı bulgular
+
+- True positive = doğru onaylanmış (TP)
+- False positive = hatalı onaylanmış (TN)
+- True negative = doğru reddedilmiş (FP)
+- False negative = hatalı reddedilmiş (FN)
+
+### CVE (Common Vurnerabilities and Exposures)??
+
+Firmaların her açığa farklı bir isim vermelerinden kaynaklı bir ihtiyaç duyulur. Buna endüstriyel bir standart belirlemek amacıyla ortal bir sözlük geliştirilir.
+
+`CVE-[KEŞİF_YILI]-[SERİ_NO]`
+
+CAN ise ben böyle bir açık buldum diye bildirdiğimizde kontrol sürecinde olduğunu bildiren sistem.
+
+`CAN-2017-001` şeklide seri numarası verilir. Bu numara CVE ye geçerken sıradaki CVE numarasını alır.
+
+**NVD:** NIST Tarafından işletilen bir zafiyet veri tabanı. CVE ye göre daha fazla teknik ayrınt verir.
+
+Sistemde çok riskli bir açık varsa yapılabilecekler:
+- **Fişi çek:** Kaynak firmadan yama gelene kadar sistem kapatılabilir.
+- **Riski kabul et:** Yama gelene kadar hiçbir şey yapılmaz yama beklenir. _Çok risklidir._
+- **Saldırı yüzeyi daralt:** Sisteme erişebilecekler arasında önem sırasına göre erişim yapılır.(Sistem için önemi düşük olan kişilerin erişimi kapatılır.)
+- **Kurguyu değiştir:** Bir app server veya proxy ile doğrudan sisteme dokunulması engellenir. Çok PC bulunan yerde doğrudan database erişimi bulunmamalıdır.
+
+
+### Sunucu ve Ağ temelli Saldırı Tespiti
+#### Sunucu Temelli Sistemler
+- Sistem günlük kaytları, uygulama gülük kayıtları, sistem üzerinde çalışan süreçlerin listeleri, sistem çağrıları ve sistem üzeriden toplanacak tüm kayıtlar
+- Ağ üzerinde gerçekleşmeyen saldırıların tespit edilmesinde kullanılabilir.
+
+**Dezavantajı**
+- Üzerinde çalışan bilgisayar sisteminin performasını olumsuz etkiler
+- Ölçeklendirilebilirliği kısıtlıdır. Çok sayıda bilgisayar üzerinde kurulması güncellenmesi ve idaresi güçtür.
+- Taşınabilir değildir.
+
+### Ağ Temelli
+Ağ üzerindeki gidip gelen trafik kontrol edilir.
+
+**Avantajları**:
+- Bir tane sistemle çok sayıda bilgisayarın trafiğini izleyebilir.
+- Ağ ve sistem performansını olumsuz etkilemez.
+- Mevcut sistemlere müdehale gerektirmez.
+
+**Dezavantajları**:
+- Saldırının tespiti için ağ trafiğinin gözlemlenmesi gerekemekte.
+    - Ağ topolojisinde değişiklik gerektirebilir.
+    - Ağ anahtarını kullanıldığı yerde ağ cihazını ayarlarını değiştirilmesi gerekmektedir.
+        - Span port kullanımı ile port mirroring
+        - Packet broker kullanımı
+    - Şifrelenmiş iletişimler ağ üzerinde incelenemeyebilir.
+- Akıllı switchlerde trafiğin bir porttan diğer bir porta kopyalanması sağlanabilir.
+- Inline koyulan bir IDS/IPS sistem için darboğaz oluşturabilir.
+
+### Snort
+1990 ların sonunda çıktı.
+GPL ile lisanslanmış bir IPS yazılımı
+
+**Snort kuralları**
+```
+alert tcp any any -> 192.168.../24:80
+```
+
+Örnek Kural:
+
+```
+alert tcp any any -> 192.168.8.149 22(msg:"ssh Traffic Detected"; sid:32117;)
+
+```
+
+**Snort ile Saldırılara Yanıt üretme**
+- Bağlantı kesilebilir.
+    - alert (---)
+    - drop (---)
+    - TCP Reset gönderebilir (TCP Reset her iki tarafa da gönderilebilir fakat bizim koruduğumuz sisteme göndermek daha mantıklı)
+
+### Alternatif Saldırı Tesptit Teknolojileri
+- Saldırıları tespit etmek üzere saldırı tespit sistemleri işe birlikte
+    - Dosya bütünlük denetleyicilerinden
+    - Honeypotlardan ve honeytokenlardan yararlanabilir.
+    - Veri tabanlarına belirli bir token koyularak sistemlere eğer bu token geçerse bana haber ver diyebiliriz.
+
+- Dosya bütünlük denetleyici
+    - somhon
+    - Triphoire
+
+**Honyepot ve Honeynet honeypot.org da güzel bulmacalar var...**
+
+
+
+## Log Yönetimi ve Analizi
+
+### Log Nedir?
+Bilgisayar, Donanım veya yazılım tarafından türetilen kayda değer uyarıcı veridir. Logun uyarıcı niteliği log türeten kaynağa, içerdiği bilginin önemine göre değişkenlik gösterir. Log mesajının içerdiği esas anlam lod data kısmında saklanır. Log data ile logun neden türetildiği ile alakalı anlam çıkarırız. Örneğin; apache access logunda geçen yetkilendirilmiş kullanıcı adı bilgisi ile ziyaretçinin kim olduğunu anlarız.
+
+- Information
+    - Kullanıcı veya sistem yöneticilerini bilgilendirmek amacı ile kaydedilen mesajlardır.
+- Debug
+    - Genelde yazılımlar taafından türetilen geliştiricilere problem tespit amacı ile yardımcı olma niteliğindeki bilgi mesajlarıdır.
+- Warning
+- Error
+- Alert
+
+### Loglar nasıl taşınır ve toplanır
+
+**syslog()** UNIX içerisinde log yönetim ve yazımı için geliştirilen standart.
+
+- **Priority**: Debug dan başlayıp fatala kadar giden logları temsil eder.
+
+- **Facility**
+    - LOG_AUTH: security /Authorization mesajları
+    - LOG_AUTHPRIV: security /Authorization mesajları (Private)
+    - LOG_CRON: clock daemon (cron ve at için kullanılır.)
+    - LOG_KERN: Kernel mesajlarını içeren logları temsil eder.
+    - LOG_LPR: line printer subsystem
+    - LOG_MAIL: mail subsystem
+    - LOG_SYSLOG: syslogd mesajlarını içerir.
+    - LOG_USER: user-level mesajları
+
+Buradakilerin hepsinin birer sayısal karşılığı var ve log tutarken bu sayılarla tutuluyor. `syslog` UDP 514 portunda çalışır. `syslog` bir taşıyıcı protokoldür. Sistem mesajlarını taşır.
+
+`syslog.conf`, `rsyslog.conf` veya `syslog-ng.conf` bu logların nasıl tutulacağını belirleyen sistemi yönetebileceğimiz dosyalardır.
+
+`/etc/rsyslog.d/50-default.conf` içerisinde tutulacak loglerın konumu tarif edilir.
+
+```
+/etc/rsyslog.d/50-default.conf
+------------------------------
+
+auth,authpriv.*                 /var/log/auth.log
+*.*;auth,authpriv.none          -/var/log/syslog
+#cron.*                         /var/log/cron.log
+#daemon.*                       -/var/log/daemon.log
+kern.*                          -/var/log/kern.log
+#lpr.*                          -/var/log/lpr.log
+mail.*                          -/var/log/mail.log
+#user.*                         -/var/log/user.log
+```
+
+bu kısımda `-/var/log/syslog` konumu önündeki '`-`' işareti buranın cache de biriktirilmeyip direk yazılmasını istediğimiz zaman kullanılır. "Unbuffered" anlamındadır.
+
+`/etc/syslog` içerisinden gelen loglar başka bir sisteme aktarılabilir.
+
+tüm dosyaya log üreten sistemler için "log rotation" diye bir kavram vardır. Zaman ve boyuta göre değişiklik gösterebilir. Bu işlemi yöneten `/etc/logrotate.d/rsyslog` dosyası bulunur.
+
+**ÖNEMLİ**
+UNIX sistemlerde bir dosya üzerinde yazma işlemi yapılacağı zaman o dosyanın inode (ls -li ile görülebilir.) değeri üzerinden yapılır. Bu sayede yazma işlemi yapılırken dosya ismi değiştirilse dahi yazma işlemi sekteye uğramaz. `logrotation` da bu mantığa göre çalışır. Önce syslog dosyasının ismini syslog.1 olarak değiştirir. Bu sırada log yazma işlemi syslog.1 üzerinde devam eder. Hali hazırda var olan syslog.1-2-3-4-5-6 ve 7 dosyalarının sıkıştırma işlemini (varsayılan gzip ile) yaptıktan sonra rsyslog'a reset atılır. Yeniden başlayan rsyslog sistemi syslog dosyasının olmadığını görünce yeniden oluşturur ve yazmaya devam eder.
+
+`/var/log/wtmp` dosyasındaki logları `last` ile okuyabilir. Bu şekildeki binary notları her sisteme özel olarak çalışan bir program ile okuyabiliriz.
+
+Hangi sistem ne demek istiyor bunu anlamakda önemli
+
+Logların güvenliği için merkezi ve güvenli bir alana kopyalanması çok önemlidir.
+
+UNIX sistemlerde loglar log üreten makine tarafından UDP/514 portu ile gönderir. NFS/SAMBA sistemlerde merkezi log toplama sistemi logları talep eder. SQL sistemelride ise her 100ms sürede şu indexden daha büyük log var mı? şeklinde sorgu gider. Switchlerde eğer kapanırsan SNMP portundan log gönder şeklinde istek yapabiliriz.
+
+**elastic search:** big data ile çalışan bir arama sistemi
+
+Korelasyon için logların zamanında gelmesi önemli. Gelen loglar hem olay başlangıcında hem de olay bitişinde loglanmalı.
+
+## Regular Expressions (Düzenli ifadeler)
+- Şablolar(Patterns)
+    - Aranan karakter dizisidir.
+    - penguen
+        - Metin içerisinde penguen geçer
+    - H2O
+        - Metin içerisinde H2O geçer
+    - `se[zv]i`
+        - Sezgi ve Sevgi kelimelerinin geçtiği tüm satırları getirebilir.
+    - `1234?`
+        - sadece 123 ve 1234 kısmını eşler. ,
+- Düzenli İfadeler
+    - Meta Karakterler
+        - Basit karakter değişkenler - `.`
+        - Karmaşık karakter değişkenler - `[]`
+        - Basit karakter niceleyiciler - `?`,`*`,`+`
+        - Karmaşık karakter niceleyiciler - `{}`
+        - Diğer meta karakterler - `/`,`^`,`$`,`|`,`()`
+    - Alfa sayısal karakterler
+        - Harfler
+            - A, B, C, ... , Z  
+        - Rakamlar
+            - 0, 1, 2, 3, ..., 9
+        - Düzenli ifade içinde her biri kendini ifade eder.
+            - `UNIX`
+                - u,n,i,x harflerinin yan yana olduğu dizgeleri eşler.
+            - `14`
+                - 1,4 rakamlarının yan yana olduğu dizgeleri eşler.
+    - Karakter Değişkenleri
+        - "`.`" Herhangi bir karakteri eşler.
+            - `a.i` -- ..., a3i, a4i, ..., aAi, ..., abi, aci,...
+        - "`[...]`" Listelenmişlerden birini eşler.
+            - `a[lbd]i` ali, abi, ve/veya adi dizgeleri eşlenir.
+        - "`[^...]`" Listelenmemişlerden birini eşler.
+            - `a[^lbd]i` ali, abi, ve/veya adi dizgeleri dışındakilerden biri eşlenir.
+    - Aralık tanımı
+        - `[a-z]` `a` ile `z` arası ascii açısından soldakinini büyük olması gerekmekte
+        - `[-z]` `-` veya `z` anlamı var
+        - `[^A-Z]` ascii tablosunda `A-Z` arasının dışında kalan kısmı temsil eder. Bu kısım içerisinde sayılar ve diğer karakterler de bulunur.
+        - `[.]` `.` kendi anlamını taşır ve regex yapısından çıkar. Bu yöntem diğer regex ifadelerin de özel anlamını kaldırmmaızı sağlar.
+    - Basit Niceleyiciler
+        - `?` hiç veya bir kez : kendisinden önceki karakter için geçerli
+        - `*` hiç veya birçok kez : kendisinden önceki karakter için geçerli
+        - `+` en az bir kez anlamını taşır.
+    - Karmaşık Niceleyiciler
+        - `{n}` Kendisinden önceki karakte tam olarak n kez yan yana bulunabilir.
+        - `{n.m}` `n` ile `m` arasında yan yana bulunabilri.
+        - `{n,}` `n` ve daha fazla sayıda yan yana bulunabilir.
+        - `.{2}` herhangi iki karakteri temsil eder. Burada `ab`, `&y`, `5h` vs. gibi yazıları eşleyebilir.
+    - Diğer Meta karakteri
+        - `\` Kaçış karakteri: özel karaklerlerin özelliklerini kaybeder.
+        - `^` satır başı
+            - ilk karakter ise değilleme özelliğini kullanır.
+        - `$` satır sonu
+        - `|` Alternatif
+        - `(` alt şablon başlangıcı
+
+## DLP (Data Loss Prevention) ve Veri Sınıflandırması
+- DLP Nedir? Neden Gereklidir.
+    - Veriyi izlemek
+    - Gizli/Hassas verilerin çıkışını engellemek
+    - Yanlış iş süreçlerinin tespiti
+    - Genel anlamda bizim hassas veri olarak isimlendirdiğimiz verinin şirket içersinde kalmasını sağlamak.
+- Verinin sınıflandırılması
+    - Veri sınıflandırmasının önemi (Veriyi neden sınıflandırmamız gerekiyor.)
+    - Neye göre sınıflandıracağız
+    - Nerede sınıflandıracağız
+- Gizli/Hassas Verinin Keşfi
+    - Nasıl tespit edeceğiz?
+        - DLP yazılımları ve classification yazılımları farklı çalışırlar fakat bazı DLP yazılımları da temel seviyede classification yapabilir.
+    - Nerede tespit edeceğiz?
+        - Dosya paylaşım alanları
+        - Uçsistemler
+        - Veri Tabanları
+
+## Vulnerability and Compliance Management (Zafiyet ve Uyum Yönetimi)
+
+Bugün kullanılan zafiyetlerin büyük çoğunluğu (%95) Önceden bulunan açıklardan faydalanılarak yapılır.  
+```
+c
+```
+
+Boğru makinenin doğru ayarlarla açıklarının kapatılması gerekmektedir
+
+Zafiyet yönetimi yapılırken;
+- Bulguları çıkart,
+- Neleri düzelteceğini bul,
+- Problemi düzelt.
+
+**Challenges - Assets**
+- İş büyüdüğünde sistem tek bir bilgisayar kontrolünden çıkar.
+- Garbage In - Garbage Out (GIGO) - volumes of superflous data
+- Bir araç ile test yapılmaz.
+- Problemi bulmak bardağın yarısını oluşturur.
+
+**Challenges - Remediation**
+- Güvenlik kaynakları genellikle bir grup içerisinde dağıtılır.
+- Bulunan anlamlı ve kullanışlı bilgiler sunulur.
+- Düzeldiği kontrol edilmelidir.
+
+**Zafiyet Keşif Test Aşaması**
+- Black Box
+    - Zafiyet taraması
+    - Penetration Test
+- White Box
+    - Peer Review (Personeller oturup birbirinin kod analizini yapar.)
+    - Statik kod analizi
+
+### Farklı Katmanlarda Yapılan Bazı Saldırılar
+- **7-Application Layer:** DNS Poisoning, Phising, SQL İnjection, Spam/Scam
+- **4-Transport Layer:** TCP Attacks, Routing attack, SYN Flooding, Sniffing
+- **3-Network Layer:** Ping/ICMP Flood
+- **2-Data-Link Layer:** ARP Spoofing, MAC Flooding
+
+### Vulnerability Management Lifecycle
+1. Politka: Süreç başlatımı, Standartlar ve klavuz
+2. Envanter: Ağ üzerindeki tüm sistemleri keşfet
+3. Öncelik: Sistetmlere iş değeri tanımla
+4. Açıklar: Sistemler üzerindeki açıklıkları keşfet.
+5. Tehditler: Potansiyel tehditleri görüntüle
+6. Riskler: Risk seviyesini hesapla (Risk = Vurnerabilities x Threats x Assets)
+7. İyileştirme: Bulunan açıklıkları gider.
+8. Ölçüm: Güvenlik kararları ve yapılanlar üzerine ölçümler yap.
+9. Uyum: Politikaya uyumluluğu gözden geçir.
+
+**Center for Internet Security**
+
+Network cihazlarının güvenliği için olması gereken configuration yapılarını tarif eder. Makineler düzgün ayarlanırsa açık oranı düzenli olarak azalacaktır. Bunların bir standardı vardır. Eğer standart düzenli olarak kontrol edilirse zafiyet oranı da düşecektir.
+
+## Popüler Zafiyet Tarama Programları
+- Nessus
+Tarama yapmaya en başta politika oluşturularak başlanır.
+    - Host Discovery
+        - Advanced Scan ile kendimize özel tarama yöntemleri ayarlayabilir.
+
+**Not**:
+
+Python üzerinde Requests modülü güzel bir modül
+
+
+Bir web uygulaması test edileceği zaman;
+- acunetix (dinamik kod analizi)
+- fortify ile statik kod analizi
+
+**statik kod analizi**, regex kullanarak kod analizi yapma olayı.
+
+
+**NOT:Kritik zafiyetler bulunduğu gün kapatılmalı, medium ve high zafiyetler o hafta içerisinde kapatılmalı. Low zafiyetler ise fırsat bulunca kapatılmalı. Low zafiyetler kapatılmadan yaına geçmeye izin verilebilir. Sıkıntı olmaz.**
+
+## Olay Müdehalesi
+Amaç, bir olay gerçekleştiğinde yapılası gerekenlerin önceden belirlenmesidir.
+
+### Hazırlık
+
+- Strateji ve Politikalar
+    - Gizlilik ve Bildirim Zorunluluğu
+        - Zorunlu olana kadar gizli mi tutacağız, yoksa hemen bildirecek miyiz?
+            - Kanuni bildirim zorunlulukları
+            - Kamu sağlığını tehdit eden zorunluluklar
+            - Başkları için tehdit.
+    - "Önle ve temizle" ya da "İzle ve öğren"
+- Farklı disiplinlerden kişileden oluşan bir takım kurulmalı
+    - Güvenlik
+        - Olay Müdehale uzmanı, adli bilişim uzmanı, zararlı yazılım analisti
+    - Operasyon
+        - Sistem yönetimi
+        - Ağ yönetimi
+    - Hukuk birimi
+- İletişim
+    - Arama listesi ulaşılamlı
+        - Kim kime haber verecek
+        - Düzenli olarak test edilmeli
+    - Periyodik bilgi aktarımı
+        - Kim kime raporlayacak
+    - İş aktarım yoları tamılanmalı
+- Felaket Kurtarma
+- Savaş odası oluşturulmalı
+    - Savaş odası, delillerin bir kopyasının saklandığı güvenli bir alandır.
+    - Amaç delillerin incelenmesi için gerekli ortamı oluşturulması ve ilgisiz kişilerin erişiminin engellenmesi
+    - Yapısal olarak;
+        - Kesinlikle Kübik değil,
+        - Camsız
+        - Kilitli
+- Takım Çantası hazır olmalı
+    - Prosedürler Güncel olmalı
+    - Yazılım ve donanımlar güncel olmalı
+    - Sistem erişim bilgileri güncel olmalı
+
+
+### Tespit
+
+Amaç verilerin/alarmların toplanması ve bunun bir olay olduğundan emin olumasıdır.
+
+- Tespit Yöntemleri
+    - Günlük kayıtlarının (log) analizi
+        - Log
+        - Korelasyon
+        - Event
+- Servislerdeki görünür değişiklikler
+    - Sayfa değişiklikleri(Defacement)
+    - Performans Problemleri
+- Dosya Bütünlüğü Değişiklikleri
+    - File Integrity Monitoring / Host Based Intrusionn Detection
+- Uç nokta güvenlik uygulaması uyarıları
+- Anonim Bildirim
+    - Whistle-blowing
+- Kurum içi teftiş
+- IOC
+    - Sıradışı Servisler.
+    - Dosyalar,
+    - "Registry" kayıtları,
+    - Ağ bağlantıları,
+    - Kullanıcı hesapları,
+    - Yetkilendirme,
+
+### İnceleme
+Amaç olayı anlamak ve delilleri toplamak
+
+- (5N-1K)
+    - NE - Konuyu verir.
+    - NEDEN - Amacı verir.
+    - NASIL - Yöntemi Belirler
+    - NEREDE - Mekanı ve yer kavramını verir
+    - NE ZAMAN - Süreç kavramları
+    - KİM - İlgili ve sorumlu kişileri belirler
+- Veri toplama
+    - Host tabanlı ve ağ-tabanlı bilgiler
+    - Adli süreçlere uygun veri toplama
+    - Kanıtların saklanması
+- Raporlama
+    - Anında belgeleme
+    - Açık ve anlaşılır not tutma
+    - Standar bir format kullanma
+
+### Durdurma
+Amaç kanamayı durdurmaktır. Bazen analiz aşamasından daha önce gerçekleştirmek gerekir.
+Durdurma stratejileri:
+- Sistemin fişini çekmek
+- Ağdan çıkarmak
+- Güvenlik sıkılaştırması
+- Sözkonusu kullanıcının hesabını kapatmak/kilitlemek
+- İzleme seviyesini artıemak
+- Tuzak kurmak
+- Saldırgana saldırmak
+
+Durdurma stratejilerina bağlı kalınmalı. Herşey kayıt altına alınmalı. Kabul edilebilir riskler önceden belirlenmeli.
+
+### Yok etme (kökünü kazıma)
+Kanamayı durdurduktan sonra saldırının izlerinin temizlenmesi ve geride hiçbir şeyin kalmadığından emin oluması gerekir.
+- Zararlı yazılımların temizlenmesi
+- Yedeklerden dönmek
+- Güvenlik önlemlerinin sıkılaştırılması
+- Zafiyet analizi
+
+### Müdehale Sonrası
+Amaç olayı belgelemek ve süreçleri iyileştirmek
+
+- Kapanış raporu hazırlanmalı
+- Alınan dersler toplantısı
+- Süreç, teknoloji ve kabiliyetlerin iyileştirilmesi için destek.
+
+### Ölümcül Hata
+- Raporlamamak veya yardım istememek
+- Not almamak veya eksik not almak
+- Delillerin doğru bir şekilde saklamak / zarar görmesini engellemek.
+- Çalışır yedeklerin olması
+- Durdurma ve yok etme adımlarında başarısızlık
+- Aylar sonra benzer olayın tekrarlanmasını önleyememek
+- Ders çıkarmamak
+
+## Siber Tehdit ve İstiharat
+### İstihbarat
+Bilimesi gereken ve ihtiyaç duyulan verilerin, kurulan belirli yapılarla birlikte farklı kaynaklardan toplanarak ve işlenerek elde edilen kriitk bilgi.
+
+- Tahdit istihbaratı için nelere ihtiyacımız var?
+    - Kurum yazılım envanteri
+    - Kurum donanım envanteri
+    - Kurum siber savunma önlemleri ve aksiyon listeleri
+    - Kurum araştırmacılarının eğitim ve iş durumları
+- Ne tür istihbaratlar toplanmalı
+    - Marka güvenliği
+    - Online / Underground forumlar
+    - TOR ekibi
+    - Sosyal medya ekibi
+    - Geliştirici siteleri takibi
+    - Veri sızıntıları
+    - Zararlı yazılım analizleri / Botnet takipleri
+    - Oltalama siteleri takibi
+    - Spam Kaynakları
+- İstihbarat toplanabilecek kaynaklar:
+    - https://cymon.io/
+        - domain, ip veya hash aratarak verdiğimiz verilerle ilgili zararlı aktiviteleri söyler.
+    - https://www.c1fapp.com/
+    - https://strongarm.io/
+    - https://www.talosintelligence.com/
+    - http://www.threatglass.com/
+    - http://threatcrowd.org/
+    - https://secure.dshield.org/
+    - https://threatconnect.com/free/
+- İstihbarat Besleme (Feed) kaynakları
+    - https://www.iblocklist.com/lists.php
+    - https://www.alienvault.com/open-threat-exchange
+    - https://www.ransomwaretracker.abuse.ch
+    - http://zeustracker.abuse.ch/
+    - https://www.threatminer.org/
+    - https://www.ibm.com/security/xforce/
+    - https://www.intra2net.com/en/support/antispam/index.php
+
+- Siber Tehdir istihbarat Ağı
+    - Veri/istihbarat Paylaşımı
+    - Erken Uyarı Sistemi
+    - Ortak havuz ile bütünsel koruma
+    - Güncel istihbarat paylaşımı
+    - Frameworkler sayesinde toplu istihbarat ve korelasyon imkanı
+- Paylaşım Standartları (En çok kullanılan ikisi)
+    - Miter:STIX
+        - Yoğun kullanılıyor.
+    - Mitre TAXII
+        - Veri güncellemede kulanılıyor.
+        - Trusted Automated Exchange of Indicator Information
+- Ticari Çözümler
+    - Anomali
+    - TeamCymru
+    - Threatconnect
+
+
+
+## Kriptografi Algoritması - I
+### Secret-Key Algorithms
+
+Sistem güvenliğinin aşamaları
+
+|Whole system security|includes everyting: policy management, Policies etc.
+---|---|---
+|Security Protocols|how to archivea certain functionality using the crypto algorithms
+|Crypto Algorithms| Fundamental buildings of block
+
+İletişim güvenliği:
+- Genel kavramlar
+    - **Gizlilik**
+    - **Doğrulama**
+    - **Veri bütünlüğü**
+    - Bilginin özel olması
+    - Anonimlik
+
+Basic Encrytion:
+```
+                   key K                                 K
+                    ___       ciphertext C=E_k(P)       ___
+ plaint text P ->  | E | ----------------------------> | D |---> plain text P=D_k(C)
+                   `---`                               `---`
+
+```
+
+Kerckhoff's prensibine göre algoritma bilinse dahi anahtar bilinmediği sürece key bilinmediği sürece sistem güvende kalmalı.
+
+Anahtar uzunlukları `80 bit` ise minimum güvenlik önlemi sağlar.
+                    `128 bit` ise medium güvenlik sağlar.
+                    `256 bit` ise long-term güvenlik sağlar.
+
+- Shift Cipher ise şifrelenmişse brute-force ile çözülebilir.
+- Substitution Cipher ile şifrelenmişse frekans analizi ile çözülebilir. Bunun çözümü block şifreleme olabilir
+x|f(x)
+---|---
+AAAAAAAA|BSDWHDPSD
+AAAAAAAB|DFVSHDIDS
+...|...
+
+fakat bu tablo ise kullanılamayacak kadar büyük.
+
+- Vernam Cipher
+
+XOR yaparak şifreleme yapar. Oluşturulacak key rastgele oluşturulmuşsa çıkan şifre kesinlikle güvenlidir. Fakat bu algoritmanın sorunu key, şifrelenmesi istenen dosyanın boyutu kadardır. Key taşıması zordur.
+
+- Block Ciphers (DES, AES):
+
+### Message Authentication Codes
+mesaj gönderilmeden önce chacksum kodu mesaj ile birlikte gider. `(M,c)` Fakat mesja şifrelenmez. Buradaki güvenlik mesajın peşinden gönderilen Checksum değeridir. Mesaj karşı tarafa iletildiğinde checksum değeri tekrar hesaplanır ve aynı ise verinin değiştirilmeden geldiği anlaşılabilir. Eğer iletim sırasında mesaj değiştirilirse chechsum değeri değişeceği için mesajın değiştiği anlaşılır.
+
+### Cryptographic Hash Functions
+Bir parolanın saklanırken md5 gibi tek çözümlü (one-way) şifremele yöntemi ile şifrelenerek hash olarak saklanması gerekir. Fakat hash saklanırken `salt` değeri eklenerek saklanabilir.
+
+username|H(pwd)
+---|---
+Alice|H(pwd), salt_a
+Bob|H(pwd), salt_b
+
+### Public Key Cryptography
+Modern Kriptografinin en önemli fikri özelliğini taşır.
+
+Diffie & Hellman, tarafından 1976 yılında önerilmiştir.
+
+
+Asimetrik anahtar Kriptografi
+
+```
+                 pub.key K'                         priv.key K
+                   ,,,,,       ciphertext C=E_k'(P)    ,,,,,
+ plaint text P ->  | E | ----------------------------> | D |---> plain text P=D_k(C)
+                   '''''                               '''''
+```
+
+## Sunum Ninjası Ol...
+### Akış
+- Kime ve nasıl konuşulacağı ile ilgili hazırlan.
+    - Grubun beklentileri veya profili üzerine araştırma yapmak gerekir.
+    - En önemli konulardan birisi bırakılan ilk izlenim.
+        - blink diye bir kitap var oku.
+    - Kendini tanıt.
+    - Her zaman gülümse (Yapay görünmeden)
+    - Mutlaka dinleyerek başla.
+        - Ne anlatacağını düzenlemek için dinleyicilerin beklentilerini dinle.
+
+### Sunucu
+- Yapılamaması gereken en önemli birşey slayttan okuma.
+    - Sunumları yazıyla boğma
+    - Sunumlar sadece fon için
+- Sıklıkla takip edebiliyor musunuz şeklinde sormak gerekir.
+    - Sunum süresi uzamışsa
+    - Öğleden önceki son sunumsa
+- Göz teması
+    - Tüm dinleyici kitlesini tara
+    - Eğer konuşma yapılan alan büyükse bölgesel tarama yap.
+- Ses tonu monoton olmamalı.
+    - Bazen hızlanıp yavaşlamaya, ses tonunun yükselip alçalmasına dikkat et.
+- Enerjik ve tutkulu ol
+    - O konuyu konuşmaktan keyif alıyorsan güzel bir konuşma olur.
+- Sunum yaparken günlük hayattan sözcükler kullan çok resmi konuşma.
+- İnsanların aklında kalmasını kolaylaştırmak için hikaye anlat. Karşıdaki kişinin kendisini hikayedeki kişinin yerine koymasını sağla.
+- Artık sahne senin. Tadını çıkar.. :)
+
+### İçerik
+- Sunuma sexy bir başlık bul.
+    - Başlık bir tweete sığmalı ve ilgi çekmeli.
+- Slaytların üzerine mümkün olduğunca çok fazla ve büyük resim koy.
+- 10/20/30 kuralı
+    - **10 slayt, 20 dakika, 30 punto**
+    - 10 slayt ana hatta, ters köşe gelebilecek soruların cevaplarını yedek bir slayta koyabilirsin.
+- Teknik ayrıntı verme. Sormayan veya bilen adam için sıkıcı oluyor.
+- Özellikle Mühendislik sunumlarında sayıları anlaşılır kıl.
+    - 4 metre ifadesini şu masadan iki tane şeklinde anlatabilirsin.
+- 3'ün gücü
+    - Her ne anlatırsan 3'e bölerek anlat.
+
+En az bunlar kadar antreman da önemli. Yapılacak sunuma çalışman gerekiyor.
+
+>_Spontanlık, sonsuz sefer antremanının sonucudur._
+
+
+Bakabileceğin kaynaklar:
+- **Toast Masters**: Dünya çapında sunum tekniklerini geliştirmek için oluşturulmuş bir dernek.
+- **Napkin Piteh**
+- **Whiteboarding**
 
 
 
@@ -1135,3 +1874,72 @@ site:ankara.edu.tr -inurl:www intext:ca*r | a.r | numrange:0-10000
     - Service tor start
 - Proxychain
 - Nipe - perl
+
+## Zafiyet Keşif Aşaması
+**Exploit**: Karşı sistem üzerinde bulunan açığa denir.
+**Payload**: Bulunan exploitin sömürülmesi için yazılan komut.
+
+### Açık Kaynak Yazılımlar
+- Openwas
+- Golismero
+- W3af (OWASP geliştirmiş)
+- Sqlmap (SQL Inj. işini alır.)
+- Nmap
+- Nikto (Web zafiyetlerini tarayan bir yazılım)
+- Vega
+- Arachni
+- Skipfish
+- Commix (Common the injection)
+
+### Ticari Yazılımlar
+- Nessus
+- Core Impect
+- Netsparker
+- Nexpose
+- Qualys
+- Appscan
+- WebInspect
+- Acunetix
+- **Burpsuit <3**
+
+
+### Exploit Geliştirme Araçları
+- Fuzzer
+- Binary Analiz
+- Debugger
+- Sniffer
+- Encoder
+- HEX Editörler
+- Shellcode lar
+
+### Exploit Frameworkler
+- Metasploit Community
+- Metasploit Pro
+- Core Impact
+- Canvas
+
+### Metasploit Kullanımı
+```
+$ service start postgresql
+$ msfconsole
+$ workspace cdsc #workspsce oluşturup bizi oraya ekler
+$ db_improt /path/to/xml.xml #nmaptan aldığımız xml çıktısını verdik
+$ services -p 445 -R #tarama sonuçlarından 445 portu açık olanları RHOSTS kısmına ekler
+
+```
+
+#### Temek Kavramlar
+---
+
+#### Reverse Shell
+
+- İç ağdan gelirken soeun yok fakat dışarıdan gelirkenki port kısıtlama yapıldığı zaman kullanılır
+
+#### Bind Shell
+
+- kurban sistemden direk shell alma olayı
+
+**lsass** windows da oturum açılışından kapanışına kadar çalışan bir process. olası bir sıkıntıda açtığımız oturum kapamaması için bu sessiona migrate oluruz.
+```
+meterpreter> migrate 536
+```
