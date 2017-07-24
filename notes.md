@@ -5,7 +5,7 @@
 
 # İçindekiler
 - [Defensive](#defensive)
-    - [Ağ Mimarileri](#ag-mimarileri)
+    - [Ağ Mimarileri](#ağ-mimarileri)
 - [Offansive](#offensive)
 
 # Defensive
@@ -1688,40 +1688,110 @@ Bakabileceğin kaynaklar:
 - **Napkin Piteh**
 - **Whiteboarding**
 
+## Bilgi Güvenliği ve Yönetim Sistemi
+### BGYS Hakkında
+- Gizlilik
+    - Bilginin yetkisiz kişilerin eline geçmemesi
+- Erişilebilirlik
+    - Bilginin yetkisiz kişiler tarafından değiştirilmemesiya da herhangi bir şekilde tahrip edilmesi tehditlerine karşı içeriğin korunması
+- Bütünlük
+    - Bilginin her ihtiyaç duyulduğunda ilgili ya da yetkili kişilerce ulaşılabilir ve kullanılabilir durumda olmasıdır.
 
+### ISO/IEC
+- ISO(International Organization for Standardization) ve IEC(International Elektrotechnical Commission) trarafından yayınlanmakta olan bir standarttır.
+- Risk yönetiminin önemini vurgular ve bilgi gizliliğinin, bütünlüğünün ve erişilebilirliğinin korunmasını amaçlar.
+- Bütün BGYS'ler gibi PUKÖ(Planla-Uygula-Kontrol et-Önlem al) veya benzeri süreçler ile sürekli iyileştirme yapılamsını benimser.
+- Büyüklüğü, faaliyetleri ve sektörü ne olursa olsun her organizasyon tarafından uygulanabilr.
 
+#### ISO/IEC 27000 serisi
+- **ISO/IEC 27000:** Genel tanımlar ve sözlük.
+- **ISO/IEC 27001:** BGYS gereksinimleri / Sertifikasyon ihtiyaçları
+- **ISO/IEC 27002:** Uygulama ilkeleri
+- **ISO/IEC 27005:** Risk Yönetimi yaklaşımı
+- **ISO/IEC 27007:** Denetim ve sertifikasyon kılavuzu
+- **ISO/IEC 27013:** ISO/IEC 20000 ile birlikte kurulum kılavuzu
+- **ISO/IEC 27032:** Siber güvenlik kılavuzu
 
+### Bilgi Güvenliği Kontrolleri
 
+- Erişim Kontrolü
+    - Her bir kullanıcıya farklı bir kimlik tanımlanmalıdır. Ortak kullanıcı kodu kullanılmamalıdır.
+    - Ssitem ve uygulamalara erişim sağlarken en az kullanıcı adı ve parola ile giriş yapılmalıdır. Kritik sistemler için 2 faktörlü kimlik doğrulama sağlanmalıdır.
+    - Yetkilendirmeler kontrollü bir şekilde sadece iş ihtiyacı doğrultusunda verilmelidir.
+    - Her yöneticci çalışanlarının sistemlerde iş ihtiyacı kadar yetkisi bulunmasından direk sorumludur. Ayrılan veya bölüm değiştiren kullanıcıların yetkileri, ilgili uygulama/sistem yöneticilerine bildirilerek kaldırılmalıdır.
+    - 3. partilerin sistem / uygulamadaki yetkilerinden bu partinin şirketteki sorumlusu sorumludur. Anlaşmanın sona erması halinde veya görev değişikliği halinde 3. parti kullanıcılarının erişim hakları kaldırılmalı veya gerektiği şekilde yeniden düzenlanmelidir.
+    - Başarılı girişler ve başarısız giriş denemeleri kaydedilmelidir. Kullanılmayan oturumlar tanımlı bir süre sonunda kapatılmalıdır. (10 dk)
+    - Her denetimde ayrıcalıklı haklara sahip kullanıcılar denetlenmektedir. Bu nedenle, ayrıcalıklı haklara sahip kullanıcışarın sayısı sınırlandırılmalıdır.
+- Parola
+    - Sistem merkezi bir kimlik doğrulama sistemi ile entegre edilmelidir. Entegre edilemediği durumlarda Parola Politikalarına uygun şekilde yapılalıdır.
+    - Kullanıcı kuvvetli parola seçmeye zorlanmalıdır.(Kullanıcı adı parola oluşturma kılavuzu olmalıdır.)
+    - Parolalar güvenli bir şekilde kullanıcıya ulaştırılmalı ve ilk girişte değiştirilmeye zorlanmalıdır.
+    - Parolalar ağ üzerinden gönderilirken ve saklanırken kriptolama gibi yöntemler kullanılmalıdır.
+    - Parolalar kimse ile paylaşılmamalıdır. Okunabilir bir formatta yazılmamalıdır.
+    - Güvensiz ortamlarda (öreğin geliştirme va test ortamları) kullanılan kullanıcı adı ve parolalar kesinlikle üretim ortamlarında aynı şekilde kullanılmamalıdır.
+    - Tüm varsayılan parolalar, sistem kullanılmaya başlamadan öcne kullanıcı ve/ya sistem/ağ yöneticileri tarafından değişitirikmelidir.
+    - Şifremi hatırla özelliği gibi gizli bilgi içeren veya iş kritik uygulamalarda kullanılmamalıdır.
+- Yedekleme
+    - Varlık sahipleri varlığa ilişkin yedekleme süresi ve metodunu belirleyerek ilgili operasyon ekiplerinden talepte bulunulmalıdır.
+    - Kritik sistem yedekleri gerçek bilgi ve yazılımların bulunduğu yerleşkede meydana gelebilecek felaketlere maruz kalmayacak ve gerçek bilgi ve yazılımların yerleşkeyla aynı rilkleri taşımayacak şekilde tutulur.
+    - İlglili operasyon ekipleri tarafından düzenli aralıklarla geriye dönüş testleri yapılmalı ve test sonuçları kayıt altına alınmalıdır.
+    - Yeniden yapılandırma prosedürleri zamana karşı kontrol edilip test edilmelidir.
+- Loglama
+    - Müşteri verilerine ve gizli verilere tüm erişimler kapatılmalıdır.
+    - İş kritik aktivitelerle ilgili işlem detayları loglanmalıdır.
+    - Sistemlerde izleme ve gözden geçirme prosedürlerinde detayları verilen aktiviteler (Başarılı / başarısız erişimler, güvenlik ihlalleri, sistem politika değişimleri, kullanıcı ekleme/çıkarma işlemeleri yönetimsel aktiviteler, güvenilk yaplandırma değişimleri) loglanmalıdır.
+    - Loglar minimumda yapılan işlem detayı, bağlantı yapılan MAC adresi, IP adresi ve port bilgisi, işlem yapan kullanıcı, tarih ve zaman bilgilerini içermelidir.
+    - Loglanan sistemin zaman ayarı merkezi zaman sunucusuna göre yapılmalıdır.
+    - Loglar güvenli bir ortamda (değiştirilemez) minimum 2 yıl süre ile saklanmalıdır ve düzenli aralıklarda gözden geçirilmelidir.
+    - Sistem yöneticilerinin kendi işlemlerine ilişkin kayıt dosyalarını silmelerini veya değişimlerini engelleyecek önlemler alınmalıdır.
+    - Loglama yapılamadığı durumda ilgili ekiplere alarm gitmeli ve logların tekrar aktif hale getirilmesi konusundaki süreç hazır olmalıdır.
+- Ağ ve sistem güvenliği
+    - İş kritik işlemler için işletim talimatları hazırlanmalıdır.
+    - Kritik sistemler ve işlemler için personel yedeklemesi yapılmalıdır.
+    - Sistemlerin güvenliklerinin güçlendirilmesi ile ilgili kontroller belirlenmeli ve düzenli olarak uygulanmalıdır.
+        - Kritik doğrulama parametrelerinin tekrar gözden geçirilmesi
+        - Kullanıcıların ve yetkilerin kontrol edilmesi
+        - Logların kontrol edilmesi
+        - Sistem zaman ayarlarını kontrol edilmesi
+        - Güvensiz servislerin (FTP, Telnet, NFS, Rlogin vb.) kapatılması
+        - Diğer
+    - Tüm uygulama, sistem ve veri tabanları firewall tarafından korunuyor olmalı. Merkezi yönetilemeyen sistemlerin politikalara uygun olarak ilgili ekipler tarafından yönetimi gerçekleştirilmelidir.
+    - Sistemler üzerinde 3. partilerin erişimleri ve yaptıkları işlemler mutlaka loglanmalı ve ilgili 3. partiden sorumlu şirket personeli tarafından gözden geçirilmelidir.
+    - İlgili sistemlerin yönetim arayüzlerine erişimler ağ seviyesnde mutlaka sınıflandırılmalıdır.
+    - Sistem kaynaklarının ne oranda kullanıldırğını ölçmek için izleme yapılmalı ve çıkan sonuca göre ileriye dönük bir kapasite ihtiyacının projeksiyonu çıkarılmalıdır.
+- Yazılım geliştirme
+    - Şirket içerisinde kullanılan programların kaynak kodları güvenli bir ortamda saklanarak erişim kısıtlaması uygulanmalıdır.
+    - Güvenli yazılım geliştirme kuralları belirlenerek dökümante edilebilir. (Örn. OWASP Secure Coding Practices)
+    - Sistem geliştirme ve entegrasyon çalışmaları için bütün sistem ve geliştirme yaşam döngüsünü kapsayan güvenil geliştirme ortamları bulunmalı (Örn. DEV, TEST, PROD) ve bub ortamlar ayrıştırılmış olmalıdır.
+    - Yapılan geliştirimlerden sonra kodları gerçek ortamlara aktarmadan güvenlik testleri gerçekleştirilmelidir.
+    - Şirket içerisinde kullanılan sistemlerin protokolleri, özellikleri, fonksiyonları gözden geçirilerek gerekli olmayan özellikler ve fonksiyonlar kaldırılmalıdır.
+    - Test verileri gizli bilgi (Örn. kişisel bilgi, telefon kayıtları) içeriğinde, karartma maskeleme, karıştırma gibi verinin okunmasını önleyici yöntemler kullanılmalıdır.
+    - Yazılımlara ilişkin versiyon kontrolü yapılmalıdır.
+- işletim güvenliği
+    - Elektrik şebekesine yedekli bağlantı, kesintisiz güç kaynağı gibi önlemler ile ekipmanları elektrik arızalarından koruyacak tedbirler alınmalıdır.
+    - Teçhizat destekleyici altyapı hizmetlerindeki hatalardan kaynaklanan enerji kesintileri ve diğer kesintilerden korunmalıdır.
+    - UPS ve/ya jeneratör ihtiyacı karşılayabilecek yeterliliğe sahip olmalıdır ve bakımları düzenli olarak yapılmalıdır.
+    - Ekipmanlarınızın bakımı, üreticinin tavsiye ettiği zaman aralıklarıda ve üreticinin tavsiye ettiği şekilde sadece yetkili personel tarafından yapılmalıdır.
+    - Şüpheli ve mevcut arızalar ve bakım çalışmaları kayıt altında tutulmalıdır. nli olarak yapılmalıdır.
+    - Kurum dışında bakım ve onarım çalışması yapıldığında kurum dışına çıkan sistem ve ekipmanlarınız içerisinde yer alan kritik bilgilerin korunmasına yönelik tedbilrler alınmalıdır.
+    - Bakımdan sonra ekipmanı operasyona almadan önce herhangi bir işlevbozukluğu olup olmadığı kontrol edilmelidir.
+    - Verilerin saklandığı sistemlerin imha edilmesinden ya da yeniden kullanılmadan önce kritik veri ve lisanslı yazılımları kaldırılmalıdır.
+- Fiziksel Güvenlik
+    - Güvenli alanlara (Hassas bilgilerin bulunduğu alanlar vb.) erişimi kontrol etmek üzere fiziksel mahallenin kategorisine (Herkese açık alan, Çalışanlara açık alan vb.) göre güvenlik önlemleri uygulanmalıdır.
+    - Kullanılmayan güvenli alanlar kilitlenmelidir ve düzenli olarak kontrol edilmelidir.
+    - Ziyaretçilerin giriş ve çıkış zamanları, kime ziyarete geldikleri ve açıklaması kaydedilmelidir.
+    - Kötü niyetli girişimlere engel olmak için 3. partilerce güvenli bölgelerde yapılan çalışmalara nezaret gösterilmelidir.
+    - Yükleme alanlarına giriş ve çıkışları kullanma yetkisi sadece sorumlu yetkili personek tarafından yapılmalıdır.
+    - Güvenli ilgili iş geliştirme birimlerince çevreler tanımlanmalıdır. Buan göre önlemlerin alınması sağlanmalıdır.
+- Bilgi Güvenliği Yönetimi
+    - Bilgi güvenliği politikaları duyurulmuş olmalı, herkes tarafından okunmalı ve nereden erişilebilir olduğu bilinmelidir.
+    - Şirketin benimsediği gibi sınıflandırması olmalıdır. ve herekesçe bilinmelidir.
+    - Şirketin tüm çalışanları bilgi güvenliği farkındalık eğitimlerini almış olmalıdır.
+    - Şirket lokasyonlarında kağıt ve taşınabilir depolama ortamları (laptop, usb, cd vb.) kullanılmadığında kilitli dolaplarda veya güvenli alanlarda muhafaza edilmelidir.
+    - Herhangi bir bilgi güvenliği olayı olduğunda raporlama ve başvuru noktası belirlenmeli (SOME) ve tüm personel tarafından bilinmelidir.
+    - Personel, Bilgi Güvenliği politikasının ve politikaya uymaması durumunda Şirketin İş Etiği Kodu ve Disiplin Esasları'na tabi olduğunu bilmelidir.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+**Bilgi güvenliği yönetimi piramidi**
 
 ---
 # Offensive
