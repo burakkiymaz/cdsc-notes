@@ -3,9 +3,6 @@
 
 ---
 
-
-
-
 # İçindekiler
 - [Defensive](#defensive)   
    - [Ağ mimarileri](#ağ-mimarileri)   
@@ -422,10 +419,10 @@ BOOTP genellikle bir bilgisayar açılıyorken önyükleme işlemi esnasında ku
     - terör
     - rakip
 - Bilinçsizlik
-    - Eitimsiz personel hataları
+    - Eğitimsiz personel hataları
     - Çalışanlar ve çalıştıkları yerler
 - Art Niyet
-    - işten kovulmuş kişi
+    - İşten kovulmuş kişi
     - Insider
     - Nefret ve intikam duygusu
 - Malware
