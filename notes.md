@@ -4,9 +4,157 @@
 ---
 
 # İçindekiler
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [CDSC Notları](#cdsc-notlar)
+- [İçindekiler](#iindekiler)
 - [Defensive](#defensive)
-    - [Ağ Mimarileri](#ağ-mimarileri)
-- [Offansive](#offensive)
+	- [Ağ mimarileri](#a-mimarileri)
+		- [Katmanlar arası iletişim](#katmanlar-aras-iletiim)
+	- [ARP ve RARP protokolleri](#arp-ve-rarp-protokolleri)
+		- [Ethernet/IP iletişimi](#ethernetip-iletiimi)
+	- [Alt Ağlar](#alt-alar)
+	- [Port](#port)
+	- [TCP iletişiminin anatomisi](#tcp-iletiiminin-anatomisi)
+		- [Rlogin](#rlogin)
+		- [FTP](#ftp)
+		- [SSH](#ssh)
+		- [SNMP Basit Ağ protkolü](#snmp-basit-a-protkolü)
+		- [DNS](#dns)
+		- [DNS Sunucuları](#dns-sunucular)
+		- [TFTP](#tftp)
+		- [BOOTP Protokolü](#bootp-protokolü)
+		- [SMTP](#smtp)
+	- [Fingerprint alma](#fingerprint-alma)
+		- [Aktif fingerprint](#aktif-fingerprint)
+		- [Pasif fingerprint](#pasif-fingerprint)
+	- [Siber Güvenlik Temelleri](#siber-güvenlik-temelleri)
+		- [Karşınızdaki kim?](#karnzdaki-kim)
+		- [Etkileri neler olabilir](#etkileri-neler-olabilir)
+		- [Süreç nasıl ilerlemeli](#süre-nasl-ilerlemeli)
+		- [iletişim kanalları](#iletiim-kanallar)
+		- [Derin internet](#derin-internet)
+		- [Derin İnternet Ağları](#derin-internet-alar)
+		- [Genel Kavramlar](#genel-kavramlar)
+		- [Sızma Testi Adımları](#szma-testi-admlar)
+		- [Sızma Testi Metodolojileri](#szma-testi-metodolojileri)
+	- [Uygulama Protokolleri](#uygulama-protokolleri)
+		- [DNS](#dns)
+		- [telnetle mail gönderme](#telnetle-mail-gönderme)
+		- [HTTP](#http)
+		- [SSH](#ssh)
+			- [Remote port forwarding](#remote-port-forwarding)
+	- [İşletim Sistemlerine Giriş](#iletim-sistemlerine-giri)
+	- [Linux 1](#linux-1)
+		- [dig](#dig)
+		- [tcpdump](#tcpdump)
+	- [Linux Güvenliğine Giriş](#linux-güvenliine-giri)
+		- [Sistem sıkılaştırması](#sistem-sklatrmas)
+			- [Fiziksel Güvenlik](#fiziksel-güvenlik)
+			- [Disk Güvenliği](#disk-güvenlii)
+			- [Dosya Güvenliği](#dosya-güvenlii)
+			- [Kullanıcı Güvenliği](#kullanc-güvenlii)
+			- [IP Tables Sıkılaştırması](#ip-tables-sklatrmas)
+			- [SSH Sıkılaştırması](#ssh-sklatrmas)
+			- [Apache Sıkılaştırması](#apache-sklatrmas)
+			- [PHP Sıkılaşması](#php-sklamas)
+			- [Gereksiz servisler kapatılmalı](#gereksiz-servisler-kapatlmal)
+			- [Rootkit taraması](#rootkit-taramas)
+			- [Virüs Taraması](#virüs-taramas)
+			- [CHROOT Yapılanamsı](#chroot-yaplanams)
+	- [Windows Fundamentals](#windows-fundamentals)
+		- [Active Directory](#active-directory)
+			- [Domain](#domain)
+			- [Trees](#trees)
+			- [Forests](#forests)
+			- [Organizational unit](#organizational-unit)
+			- [Domain Controller (DC)](#domain-controller-dc)
+		- [Group Policies](#group-policies)
+		- [Local Computer Policy](#local-computer-policy)
+		- [Güvenlik Mekanizmaları (DEP, ASLR, UAC)](#güvenlik-mekanizmalar-dep-aslr-uac)
+	- [Windows Network Security #1](#windows-network-security-1)
+		- [Güvenlik Duvarı nedir?](#güvenlik-duvar-nedir)
+		- [DMZ (DeMilitarized Zone)](#dmz-demilitarized-zone)
+		- [Proxy Sunucuları](#proxy-sunucular)
+		- [NAT (Network Address Translation) / PAT (Port Address Translation)](#nat-network-address-translation-pat-port-address-translation)
+		- [Next Generation Firewall](#next-generation-firewall)
+		- [Unified Threat Managemet (UTM)](#unified-threat-managemet-utm)
+		- [Web Application Firewall (WAF)](#web-application-firewall-waf)
+		- [IPS](#ips)
+	- [Network Security #2](#network-security-2)
+		- [TAP / SPAN](#tap-span)
+	- [Network Based Attack](#network-based-attack)
+		- [IP / MAC Spoofing](#ip-mac-spoofing)
+		- [ARP Spoofing](#arp-spoofing)
+		- [Switch Port Security](#switch-port-security)
+		- [Rouge DHCP Sunucusu](#rouge-dhcp-sunucusu)
+		- [DNS Cache Poisoning](#dns-cache-poisoning)
+		- [Kurumlarda DNS Sunucular](#kurumlarda-dns-sunucular)
+		- [NAC (Network Access Control)](#nac-network-access-control)
+	- [Sunucu ve Uç sistem Güvenliği](#sunucu-ve-u-sistem-güvenlii)
+	- [APT (Advenced Persistent Threat)](#apt-advenced-persistent-threat)
+		- [APT Çözüm Yöntemleri](#apt-özüm-yöntemleri)
+		- [APT Tespit Yöntemleri](#apt-tespit-yöntemleri)
+	- [Saldırı Tespiti ve Engellenmesi (Intrusion Detection System)](#saldr-tespiti-ve-engellenmesi-intrusion-detection-system)
+		- [Anormallik tespiti](#anormallik-tespiti)
+		- [CVE (Common Vurnerabilities and Exposures)??](#cve-common-vurnerabilities-and-exposures)
+		- [Sunucu ve Ağ temelli Saldırı Tespiti](#sunucu-ve-a-temelli-saldr-tespiti)
+			- [Sunucu Temelli Sistemler](#sunucu-temelli-sistemler)
+		- [Ağ Temelli](#a-temelli)
+		- [Snort](#snort)
+		- [Alternatif Saldırı Tesptit Teknolojileri](#alternatif-saldr-tesptit-teknolojileri)
+	- [Log Yönetimi ve Analizi](#log-yönetimi-ve-analizi)
+		- [Log Nedir?](#log-nedir)
+		- [Loglar nasıl taşınır ve toplanır](#loglar-nasl-tanr-ve-toplanr)
+- [cron.*                         /var/log/cron.log](#cron-varlogcronlog)
+- [daemon.*                       -/var/log/daemon.log](#daemon-varlogdaemonlog)
+- [lpr.*                          -/var/log/lpr.log](#lpr-varloglprlog)
+- [user.*                         -/var/log/user.log](#user-varloguserlog)
+	- [Regular Expressions (Düzenli ifadeler)](#regular-expressions-düzenli-ifadeler)
+	- [DLP (Data Loss Prevention) ve Veri Sınıflandırması](#dlp-data-loss-prevention-ve-veri-snflandrmas)
+	- [Vulnerability and Compliance Management (Zafiyet ve Uyum Yönetimi)](#vulnerability-and-compliance-management-zafiyet-ve-uyum-yönetimi)
+		- [Farklı Katmanlarda Yapılan Bazı Saldırılar](#farkl-katmanlarda-yaplan-baz-saldrlar)
+		- [Vulnerability Management Lifecycle](#vulnerability-management-lifecycle)
+	- [Popüler Zafiyet Tarama Programları](#popüler-zafiyet-tarama-programlar)
+	- [Olay Müdehalesi](#olay-müdehalesi)
+		- [Hazırlık](#hazrlk)
+		- [Tespit](#tespit)
+		- [İnceleme](#inceleme)
+		- [Durdurma](#durdurma)
+		- [Yok etme (kökünü kazıma)](#yok-etme-kökünü-kazma)
+		- [Müdehale Sonrası](#müdehale-sonras)
+		- [Ölümcül Hata](#ölümcül-hata)
+	- [Siber Tehdit ve İstiharat](#siber-tehdit-ve-istiharat)
+		- [İstihbarat](#istihbarat)
+	- [Kriptografi Algoritması - I](#kriptografi-algoritmas-i)
+		- [Secret-Key Algorithms](#secret-key-algorithms)
+		- [Message Authentication Codes](#message-authentication-codes)
+		- [Cryptographic Hash Functions](#cryptographic-hash-functions)
+		- [Public Key Cryptography](#public-key-cryptography)
+	- [Sunum Ninjası Ol...](#sunum-ninjas-ol)
+		- [Akış](#ak)
+		- [Sunucu](#sunucu)
+		- [İçerik](#ierik)
+	- [Bilgi Güvenliği ve Yönetim Sistemi](#bilgi-güvenlii-ve-yönetim-sistemi)
+		- [BGYS Hakkında](#bgys-hakknda)
+		- [ISO/IEC](#isoiec)
+			- [ISO/IEC 27000 serisi](#isoiec-27000-serisi)
+		- [Bilgi Güvenliği Kontrolleri](#bilgi-güvenlii-kontrolleri)
+- [Offensive](#offensive)
+	- [Pasif Bilgi Toplama](#pasif-bilgi-toplama)
+	- [Aktip Bilgi toplama](#aktip-bilgi-toplama)
+		- [Anonim Tarama](#anonim-tarama)
+	- [Zafiyet Keşif Aşaması](#zafiyet-keif-aamas)
+		- [Açık Kaynak Yazılımlar](#ak-kaynak-yazlmlar)
+		- [Ticari Yazılımlar](#ticari-yazlmlar)
+		- [Exploit Geliştirme Araçları](#exploit-gelitirme-aralar)
+		- [Exploit Frameworkler](#exploit-frameworkler)
+		- [Metasploit Kullanımı](#metasploit-kullanm)
+			- [Temek Kavramlar](#temek-kavramlar)
+			- [Reverse Shell](#reverse-shell)
+			- [Bind Shell](#bind-shell)
+
+<!-- /TOC -->
 
 # Defensive
 ## Ağ mimarileri
@@ -224,7 +372,7 @@ kullanıcıyı onaylamak için;
 - Kerberos
 - Sunucu bazlı açık anahtar kullanır.
 
-### SNMP BAsit Ağ protkolü
+### SNMP Basit Ağ protkolü
 - UDP/TCP bazlıdır.
 - 161-162 portunu kullanır.
 - ürüm 1-2-3 şeklinde sürümleri var.
@@ -324,7 +472,7 @@ Tanımlama --> Analiz --> Aksiyon --> İzleme --> Kontrol
 ### Sızma Testi Adımları
 Biligi Toplama --> Zafiyet Keşfi --> İstismar Etme --> Yetki Yükseltme --> İzleri Silme
 
-### Sizma Testi Metodolojileri
+### Sızma Testi Metodolojileri
 - OWASP
     - Web Güvenliği Testleri
     - Mobil Uygulama Güvenliği Testleri
@@ -638,7 +786,7 @@ Bilgisayar sistemlerinin güvenliğinin artırımasına sistem sıkılaştırmas
     - Ip spoofing engellemek için (`net.ipv4.conf.default.rp_filter = 1`)
     - ip v6 üzerinden erişimi kapatmak
 
-#### SSH Sıkılıştırması
+#### SSH Sıkılaştırması
 - root kullanıcısının root erişimini kapatmak için
     ```
     cat /etc/ssh/sshd_config
