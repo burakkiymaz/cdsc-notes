@@ -80,7 +80,6 @@
       - [Unified Threat Managemet (UTM)](#unified-threat-managemet-utm)   
       - [Web Application Firewall (WAF)](#web-application-firewall-waf)   
       - [IPS](#ips)   
-   - [![a secure network](img/secure-network.png)](#a-secure-networkimgsecure-networkpng)   
    - [Network Security #2](#network-security-#2)   
       - [TAP / SPAN](#tap-span)   
    - [Network Based Attack](#network-based-attack)   
